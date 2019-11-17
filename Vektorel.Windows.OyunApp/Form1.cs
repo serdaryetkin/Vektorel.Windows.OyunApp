@@ -8,10 +8,10 @@ namespace Vektorel.Windows.OyunApp
     public partial class frmOyun : Form
     {
         Random rnd = new Random();
-        int toplam = 0;
-        int kalan = 10;
+        int skor = 0;
+        int kalan = 5;
         private frmGiris frmGiris;
-        List<int> list = new List<int>();
+        List<int> skorlar = new List<int>();
         public frmOyun()
         {
             InitializeComponent();
@@ -23,11 +23,12 @@ namespace Vektorel.Windows.OyunApp
             this.frmGiris = frmGiris;
         }
 
+
         private void TmrButton_Tick(object sender, EventArgs e)
         {
             Button btn = new Button();
             btn.Size = new Size(50, 50);
-            btn.Location = new Point(rnd.Next(this.ClientSize.Width - btn.Size.Width), rnd.Next(this.ClientSize.Height - btn.Size.Height));
+            btn.Location = new Point(rnd.Next(this.ClientSize.Width - btn.Size.Width - pnlBilgi.Size.Height), rnd.Next(this.ClientSize.Height - btn.Size.Height));
             btn.Text = rnd.Next(10, 100).ToString();
             btn.Click += Btn_Click;
             btn.BackColor = Color.FromArgb(rnd.Next(255), rnd.Next(255), rnd.Next(255));
@@ -37,7 +38,7 @@ namespace Vektorel.Windows.OyunApp
         private void Btn_Click(object sender, EventArgs e)
         {
             Button btn = (Button)sender;
-            toplam += int.Parse(btn.Text);
+            skor += int.Parse(btn.Text);
             this.BackColor = Color.FromArgb(rnd.Next(255), rnd.Next(255), rnd.Next(255));
             btn.Dispose();
         }
@@ -46,26 +47,69 @@ namespace Vektorel.Windows.OyunApp
         {
             tmrForm.Start();
             tmrButton.Start();
-            lblAdSoyad.Text = frmGiris.txtad.Text + " " + frmGiris.txtSoyad.Text;
+            lblAdSoyad.Text = frmGiris.txtad.Text.Trim() + " " + frmGiris.txtSoyad.Text.Trim().ToUpper();
+
         }
 
         private void TmrForm_Tick(object sender, EventArgs e)
         {
             kalan--;
-            this.Text = kalan.ToString();
+            lblSüre.Text = kalan.ToString();
+            lblSkor.Text = skor.ToString();
+
+
             if (kalan == 0)
             {
-                list.Add(toplam);
+
                 tmrForm.Stop();
                 tmrButton.Stop();
-                MessageBox.Show($"{frmGiris.txtad.Text} {frmGiris.txtSoyad.Text}\nOyun bitti!\nToplam Puan:{toplam}");
-                DialogResult cvp = MessageBox.Show("Yeniden oynamak ister misiniz?", "Yeniden Oyna", MessageBoxButtons.YesNo);
-                
-                if (cvp==DialogResult.Yes)
+                lstSkorlar.Text = skorlar.ToString();
+                DialogResult cvp = MessageBox.Show($"{frmGiris.txtad.Text} {frmGiris.txtSoyad.Text}\nOyun bitti!\nToplam Puan:{skor}\nYeniden oynamak ister misiniz?", "Yeniden Oyna", MessageBoxButtons.YesNo);
+                skorlar.Add(skor);
+                lstSkorlar.Items.Add(skor);
+                if (cvp == DialogResult.Yes)
                 {
-                    kalan = 10;
+                    YenidenBaslat();
+                }
+                else
+                {
+                    int max = 0;
+                    foreach (int item in lstSkorlar.Items)
+                    {
+                        if (item > max)
+                        {
+                            max = item;
+                        }
+                    }
+                    MessageBox.Show($"{frmGiris.txtad.Text} {frmGiris.txtSoyad.Text}\nOyun bitti!\nEn Yüksek Puan:{max}");
                 }
             }
+        }
+
+        void YenidenBaslat()
+        {
+            kalan = 5;
+            for (int i = 0; i < this.Controls.Count; i++)
+            {
+                if (Controls[i] is Button)
+                {
+                    this.Controls[i].Dispose();
+                    i--;
+                } 
+               
+            }
+
+            skor = 0;
+            tmrForm.Start();
+            tmrButton.Start();
+        }
+
+
+
+        private void FrmOyun_Resize(object sender, EventArgs e)
+        {
+            pnlBilgi.Height = this.ClientSize.Height;
+            pnlBilgi.Location = new Point(this.ClientSize.Width - pnlBilgi.Size.Width, 0);
         }
     }
 }

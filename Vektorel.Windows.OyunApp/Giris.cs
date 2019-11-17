@@ -12,7 +12,12 @@ namespace Vektorel.Windows.OyunApp
 {
     public partial class frmGiris : Form
     {
-
+        public enum Seviye
+        {
+            Kolay,
+            Orta,
+            Zor
+        }
         public frmGiris()
         {
             InitializeComponent();
@@ -20,13 +25,24 @@ namespace Vektorel.Windows.OyunApp
 
         private void BtnGiris_Click(object sender, EventArgs e)
         {
+            Seviye seviye;
+            if (rdKolay.Checked)
+            {
+                seviye = Seviye.Kolay;
+            }
+            else if (rdOrta.Checked)
+            {
+
+                seviye = Seviye.Orta;
+            }
+            else
+            {
+                seviye = Seviye.Zor;
+            }
             frmOyun frm = new frmOyun(this);
             frm.Show();
         }
 
-        private void FrmGiris_Load(object sender, EventArgs e)
-        {
-
-        }
+        
     }
 }
